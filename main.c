@@ -50,7 +50,7 @@ void build_cost_map(short unsigned int map_param[map_y][map_x], int start_x, int
         {
             if (map_param[j][i] != 255)
             {
-                map_param[j][i] = abs(j-end_y)+abs(i-end_x);
+                map_param[j][i] = round(sqrt(pow((j-end_y),2)+pow((i-end_x),2)));
             }
         }
     }
@@ -98,9 +98,9 @@ int make_path(short unsigned int map_param[map_y][map_x], int start_x, int start
     while ((robot_x != end_x) || (robot_y != end_y))
     {
         next_case(map_param, robot_x, robot_y, &next_x, &next_y);
-        if(map_param[robot_y][robot_x]==180)
+        if((map_param[robot_y][robot_x]>=180)&&(map_param[robot_y][robot_x]<250))
         {
-            map_param[robot_y][robot_x]=190;
+            map_param[robot_y][robot_x]+=10;
         }
         else
         {
@@ -119,20 +119,20 @@ int make_path(short unsigned int map_param[map_y][map_x], int start_x, int start
 int main()
 {
     short unsigned int main_map[map_y][map_x] = {   {255, 255, 255, 255, 255, 255, 255, 255, 255},
-                                                    {255, 000, 000, 000, 000, 000, 255, 000, 255},
+                                                    {255, 000, 000, 000, 000, 000, 000, 000, 255},
                                                     {255, 000, 255, 255, 255, 255, 255, 000, 255},
-                                                    {255, 000, 000, 000, 000, 000, 255, 000, 255},
-                                                    {255, 000, 255, 255, 255, 000, 255, 000, 255},
                                                     {255, 000, 000, 000, 255, 000, 255, 000, 255},
                                                     {255, 000, 255, 255, 255, 000, 255, 000, 255},
                                                     {255, 000, 000, 000, 255, 000, 255, 000, 255},
-                                                    {255, 000, 255, 000, 000, 000, 000, 000, 255},
+                                                    {255, 000, 255, 255, 255, 000, 255, 000, 255},
+                                                    {255, 000, 000, 000, 255, 000, 255, 000, 255},
+                                                    {255, 000, 255, 000, 255, 000, 000, 000, 255},
                                                     {255, 255, 255, 255, 255, 255, 255, 255, 255}};
     int goal_x = 7;
     int goal_y = 4;
 
-    int robot_x_init = 1;
-    int robot_y_init = 3;
+    int robot_x_init = 3;
+    int robot_y_init = 8;
 
     int step = 0;
 
