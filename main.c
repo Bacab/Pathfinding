@@ -15,16 +15,12 @@
 #define donotusecls 0
 #endif // _WIN32
 
-static int maxi(int x, int y);
+#define MAXI(a,b) (((a)>(b))?(a):(b))
+
 static void print_trajectory(unsigned short int map_param[map_x][map_x], int start_x, int start_y, int end_x, int end_y);
 static void build_cost_map(short unsigned int map_param[map_y][map_x], int end_x, int end_y);
 static void next_case(short unsigned int map_param[map_y][map_x],int pos_x, int pos_y, int* delta_x, int* delta_y);
 static int make_path(short unsigned int map_param[map_y][map_x], int start_x, int start_y, int end_x, int end_y);
-
-int maxi(int x, int y)
-{
-  return x ^ ((x ^ y) & -(x < y));
-}
 
 void print_trajectory(unsigned short int map_param[map_x][map_x], int start_x, int start_y, int end_x, int end_y)
 {
@@ -83,7 +79,7 @@ void build_cost_map(short unsigned int map_param[map_y][map_x], int end_x, int e
             {
                 //map_param[j][i] = round(sqrt(pow((j-end_y),2)+pow((i-end_x),2)));// Sort of Euclidian distance
                 //map_param[j][i] = abs(j-end_y)+abs(i-end_x);//Manhattan distance
-                map_param[j][i] = (unsigned short int)maxi(abs(j-end_y),abs(i-end_x));//Tchebychev distance
+                map_param[j][i] = (unsigned short int)MAXI(abs(j-end_y),abs(i-end_x));//Tchebychev distance
             }
         }
     }
