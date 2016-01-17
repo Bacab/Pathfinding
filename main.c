@@ -15,11 +15,11 @@
 #define donotusecls 0
 #endif // _WIN32
 
-int maxi(int x, int y);
-void print_trajectory(unsigned short int map_param[map_x][map_x], int start_x, int start_y, int end_x, int end_y);
-void build_cost_map(short unsigned int map_param[map_y][map_x], int end_x, int end_y);
-void next_case(short unsigned int map_param[map_y][map_x],int pos_x, int pos_y, int* delta_x, int* delta_y);
-int make_path(short unsigned int map_param[map_y][map_x], int start_x, int start_y, int end_x, int end_y);
+static int maxi(int x, int y);
+static void print_trajectory(unsigned short int map_param[map_x][map_x], int start_x, int start_y, int end_x, int end_y);
+static void build_cost_map(short unsigned int map_param[map_y][map_x], int end_x, int end_y);
+static void next_case(short unsigned int map_param[map_y][map_x],int pos_x, int pos_y, int* delta_x, int* delta_y);
+static int make_path(short unsigned int map_param[map_y][map_x], int start_x, int start_y, int end_x, int end_y);
 
 int maxi(int x, int y)
 {
