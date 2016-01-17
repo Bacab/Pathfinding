@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #define map_x 9
 #define map_y 10
 #define debug 1
 
-void print_trajectory(unsigned short int map_param[map_x][map_x], int start_x, int start_y)
+void print_trajectory(unsigned short int map_param[map_x][map_x], int start_x, int start_y, int end_x, int end_y)
 {
     system("cls");
     for (int j = 0; j < map_y; j++)
@@ -14,7 +15,7 @@ void print_trajectory(unsigned short int map_param[map_x][map_x], int start_x, i
         for (int i = 0; i < map_x; i++)
         {
             printf("\t");
-            if((i!=start_x)||(j!=start_y))
+            if(((i!=start_x)||(j!=start_y))&&((i!=end_x)||(j!=end_y)))
             {
                 switch(map_param[j][i])
                 {
@@ -24,18 +25,19 @@ void print_trajectory(unsigned short int map_param[map_x][map_x], int start_x, i
                     case 255:
                         printf("||");
                         break;
-                    case 0:
-                        printf("G");//Il faut atteindre le point G ^_^
-                        break;
                     default:
                         printf(" ");
                         break;
                 }
                 //printf("%d",map_param[j][i]);
             }
-            else
+            else if((i==start_x)&&(j==start_y))
             {
                 printf("R");//On part d'ici
+            }
+            else if((i==end_x)&&(j==end_y))
+            {
+                printf("G");//Il faut atteindre le point G ^_^
             }
         }
         printf("\n");
@@ -109,9 +111,9 @@ int make_path(short unsigned int map_param[map_y][map_x], int start_x, int start
         robot_x += next_x;
         robot_y += next_y;
         nb_iter+=1;
-        print_trajectory(map_param,robot_x,robot_y);
-        printf("Appuyer sur entre pour continuer\n");
-        getchar();
+        //print_trajectory(map_param,robot_x,robot_y,end_x,end_y);
+        //printf("Appuyer sur entre pour continuer\n");
+        //getchar();
     }
     return nb_iter;
 }
@@ -119,29 +121,47 @@ int make_path(short unsigned int map_param[map_y][map_x], int start_x, int start
 int main()
 {
     short unsigned int main_map[map_y][map_x] = {   {255, 255, 255, 255, 255, 255, 255, 255, 255},
-                                                    {255, 000, 000, 000, 000, 000, 000, 000, 255},
+                                                    {255, 000, 000, 000, 000, 000, 255, 000, 255},
+                                                    {255, 000, 255, 255, 255, 255, 000, 000, 255},
+                                                    {255, 000, 000, 000, 000, 000, 255, 000, 255},
                                                     {255, 000, 255, 255, 255, 255, 255, 000, 255},
-                                                    {255, 000, 000, 000, 255, 000, 255, 000, 255},
-                                                    {255, 000, 255, 255, 255, 000, 255, 000, 255},
-                                                    {255, 000, 000, 000, 255, 000, 255, 000, 255},
-                                                    {255, 000, 255, 255, 255, 000, 255, 000, 255},
-                                                    {255, 000, 000, 000, 255, 000, 255, 000, 255},
-                                                    {255, 000, 255, 000, 255, 000, 000, 000, 255},
+                                                    {255, 255, 000, 000, 000, 000, 255, 000, 255},
+                                                    {255, 000, 255, 000, 255, 255, 255, 000, 255},
+                                                    {255, 000, 000, 000, 000, 000, 255, 000, 255},
+                                                    {255, 000, 000, 000, 000, 000, 255, 000, 255},
                                                     {255, 255, 255, 255, 255, 255, 255, 255, 255}};
+    short unsigned int second_map[map_y][map_x];
     int goal_x = 7;
-    int goal_y = 4;
+    int goal_y = 8;
 
-    int robot_x_init = 3;
+    int robot_x_init = 5;
     int robot_y_init = 8;
 
     int step = 0;
+    int step_inverse = 0;
 
+    memcpy(second_map,main_map,map_x*map_y*sizeof(short unsigned int));
     build_cost_map(main_map, robot_x_init, robot_y_init, goal_x, goal_y);
     step = make_path(main_map, robot_x_init, robot_y_init, goal_x, goal_y);
-    printf("%d\n",step);
-    if(debug)
+
+    build_cost_map(second_map, goal_x, goal_y, robot_x_init, robot_y_init);
+    step_inverse = make_path(second_map, goal_x, goal_y, robot_x_init, robot_y_init);
+
+    if(step_inverse<step)
     {
-        print_trajectory(main_map,robot_x_init,robot_y_init);
+        if(debug)
+        {
+            print_trajectory(second_map,robot_x_init,robot_y_init,goal_x,goal_y);
+            printf("%d\n",step_inverse);
+        }
+    }
+    else
+    {
+        if(debug)
+        {
+            print_trajectory(main_map,robot_x_init,robot_y_init,goal_x,goal_y);
+            printf("%d\n",step);
+        }
     }
     return 0;
 }
