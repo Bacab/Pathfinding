@@ -7,6 +7,11 @@
 #define map_y 10
 #define debug 1
 
+int maxi(int x, int y)
+{
+  return x ^ ((x ^ y) & -(x < y));
+}
+
 void print_trajectory(unsigned short int map_param[map_x][map_x], int start_x, int start_y, int end_x, int end_y)
 {
     system("cls");
@@ -24,6 +29,9 @@ void print_trajectory(unsigned short int map_param[map_x][map_x], int start_x, i
                         break;
                     case 255:
                         printf("||");
+                        break;
+                    case 190:
+                        printf("**");
                         break;
                     default:
                         printf(" ");
@@ -52,7 +60,9 @@ void build_cost_map(short unsigned int map_param[map_y][map_x], int start_x, int
         {
             if (map_param[j][i] != 255)
             {
-                map_param[j][i] = round(sqrt(pow((j-end_y),2)+pow((i-end_x),2)));
+                //map_param[j][i] = round(sqrt(pow((j-end_y),2)+pow((i-end_x),2)));// Sort of Euclidian distance
+                //map_param[j][i] = abs(j-end_y)+abs(i-end_x);//Manhattan distance
+                map_param[j][i] = maxi(abs(j-end_y),abs(i-end_x));//Tchebychev distance
             }
         }
     }
@@ -121,21 +131,21 @@ int make_path(short unsigned int map_param[map_y][map_x], int start_x, int start
 int main()
 {
     short unsigned int main_map[map_y][map_x] = {   {255, 255, 255, 255, 255, 255, 255, 255, 255},
-                                                    {255, 000, 000, 000, 000, 000, 255, 000, 255},
-                                                    {255, 000, 255, 255, 255, 255, 000, 000, 255},
-                                                    {255, 000, 000, 000, 000, 000, 255, 000, 255},
+                                                    {255, 000, 255, 000, 000, 000, 255, 000, 255},
+                                                    {255, 000, 000, 000, 000, 000, 000, 000, 255},
                                                     {255, 000, 255, 255, 255, 255, 255, 000, 255},
-                                                    {255, 255, 000, 000, 000, 000, 255, 000, 255},
-                                                    {255, 000, 255, 000, 255, 255, 255, 000, 255},
-                                                    {255, 000, 000, 000, 000, 000, 255, 000, 255},
-                                                    {255, 000, 000, 000, 000, 000, 255, 000, 255},
+                                                    {255, 000, 000, 000, 255, 000, 000, 000, 255},
+                                                    {255, 000, 000, 000, 255, 000, 000, 000, 255},
+                                                    {255, 000, 000, 000, 255, 000, 000, 000, 255},
+                                                    {255, 255, 000, 000, 255, 000, 000, 255, 255},
+                                                    {255, 255, 255, 000, 000, 000, 255, 255, 255},
                                                     {255, 255, 255, 255, 255, 255, 255, 255, 255}};
     short unsigned int second_map[map_y][map_x];
     int goal_x = 7;
-    int goal_y = 8;
+    int goal_y = 4;
 
-    int robot_x_init = 5;
-    int robot_y_init = 8;
+    int robot_x_init = 1;
+    int robot_y_init = 4;
 
     int step = 0;
     int step_inverse = 0;
