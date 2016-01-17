@@ -7,6 +7,20 @@
 #define map_y 10
 #define debug 1
 
+#ifdef linux
+#define donotusecls 1
+#endif // linux
+
+#ifdef _WIN32
+#define donotusecls 0
+#endif // _WIN32
+
+int maxi(int x, int y);
+void print_trajectory(unsigned short int map_param[map_x][map_x], int start_x, int start_y, int end_x, int end_y);
+void build_cost_map(short unsigned int map_param[map_y][map_x], int end_x, int end_y);
+void next_case(short unsigned int map_param[map_y][map_x],int pos_x, int pos_y, int* delta_x, int* delta_y);
+int make_path(short unsigned int map_param[map_y][map_x], int start_x, int start_y, int end_x, int end_y);
+
 int maxi(int x, int y)
 {
   return x ^ ((x ^ y) & -(x < y));
@@ -14,7 +28,14 @@ int maxi(int x, int y)
 
 void print_trajectory(unsigned short int map_param[map_x][map_x], int start_x, int start_y, int end_x, int end_y)
 {
-    system("cls");
+    if(donotusecls)
+    {
+        system("clear");
+    }
+    else
+    {
+        system("cls");
+    }
     for (int j = 0; j < map_y; j++)
     {
         for (int i = 0; i < map_x; i++)
@@ -52,7 +73,7 @@ void print_trajectory(unsigned short int map_param[map_x][map_x], int start_x, i
     }
 }
 
-void build_cost_map(short unsigned int map_param[map_y][map_x], int start_x, int start_y, int end_x, int end_y)
+void build_cost_map(short unsigned int map_param[map_y][map_x], int end_x, int end_y)
 {
     for (int j = 0; j < map_y; j++)
     {
@@ -62,7 +83,7 @@ void build_cost_map(short unsigned int map_param[map_y][map_x], int start_x, int
             {
                 //map_param[j][i] = round(sqrt(pow((j-end_y),2)+pow((i-end_x),2)));// Sort of Euclidian distance
                 //map_param[j][i] = abs(j-end_y)+abs(i-end_x);//Manhattan distance
-                map_param[j][i] = maxi(abs(j-end_y),abs(i-end_x));//Tchebychev distance
+                map_param[j][i] = (unsigned short int)maxi(abs(j-end_y),abs(i-end_x));//Tchebychev distance
             }
         }
     }
@@ -151,10 +172,10 @@ int main()
     int step_inverse = 0;
 
     memcpy(second_map,main_map,map_x*map_y*sizeof(short unsigned int));
-    build_cost_map(main_map, robot_x_init, robot_y_init, goal_x, goal_y);
+    build_cost_map(main_map, goal_x, goal_y);
     step = make_path(main_map, robot_x_init, robot_y_init, goal_x, goal_y);
 
-    build_cost_map(second_map, goal_x, goal_y, robot_x_init, robot_y_init);
+    build_cost_map(second_map, robot_x_init, robot_y_init);
     step_inverse = make_path(second_map, goal_x, goal_y, robot_x_init, robot_y_init);
 
     if(step_inverse<step)
