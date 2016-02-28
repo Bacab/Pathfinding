@@ -151,14 +151,13 @@ int     make_path(unsigned short int map_param[10][9], int map_x, int map_y, int
 {
     node starting_node;//le noeud de depart, seul noeud avec f=g=h=0 et sans parent
     node* tmp;//le noeud a analyser
-    node* successor;//le meilleur noeud pour avancer vers le but
-//    node node_del;
+    node* successor;//un candidat pour le prochain noeud a analyser
+
     int tmp_x = 0;
     int tmp_y = 0;
 
     int mini_f = 1;//f minimal
     int add_to_open_list = 1;//indique si le noeud est un candidat viable
-//    int delete_a_nod = 0;
     int step = 0;//le nombre de cases parcourues pour atteindre le but
 
     //On construit le noeud de départ
@@ -171,13 +170,13 @@ int     make_path(unsigned short int map_param[10][9], int map_x, int map_y, int
 
     //On construit les listes chainees qui representeront notre choix de parcours
     List* open_list = list_create(&starting_node);//la liste des noeuds dont il faut analyser les alentours
-    List* closed_list = NULL;//la liste de noeud qui forment notre chemin
-    List* next_list = NULL;//permet de parcourir les listes
+    List* closed_list = NULL;//la liste des noeuds deja analyses
+    List* next_list = NULL;//permet de parcourir les listes chainees
 
     while(open_list!=NULL)
     {
         next_list = open_list;
-        //On ne garde que le noeud de plus petit f
+        //Parmi les noeuds a analyser on ne garde que le noeud de plus petit f
         mini_f = 9999;
         while(next_list)
         {
@@ -206,17 +205,15 @@ int     make_path(unsigned short int map_param[10][9], int map_x, int map_y, int
                     {
                         //On cree un noeud correspondant a cette case avec pour parent le noeud elu
                         successor = create_node(tmp, tmp_x, tmp_y, end_x, end_y);
-                       //Si c'est notre but alors inutile de l'ajouter aux noeuds a analyser
+                       //Si c'est notre but alors inutile de l'ajouter aux noeuds a analyser et on arrete de chercher
                         if((successor->x==end_x)&&(successor->y==end_y))
                         {
+                                //On parcours le chemin calcule en modifiant la carte en conséquence
+                                //pour pouvoir afficher un resultat lisible a l'ecran
                                 node* next_node = successor;
                                 step = 0;
                                 while(next_node)
                                 {
-//                                    printf("===================================\n");
-//                                    printf("Nouveau noeud\n");
-//                                    printf("Parent = %x\n",next_node->parent);
-//                                    printf("x = %d | y = %d | f = %d\n",next_node->x,next_node->y,next_node->f);
                                     map_param[next_node->y][next_node->x] = 180;
                                     step+=1;
                                     next_node = next_node->parent;
@@ -238,7 +235,7 @@ int     make_path(unsigned short int map_param[10][9], int map_x, int map_y, int
                                 }
                                 next_list = next_list->next;
                             }
-                            //si on a deja ajoute ce noeud a la liste des noeuds choisis
+                            //si on a deja ajoute ce noeud a la liste des noeuds analyses
                             //mais avec un chemin depuis le depart plus court, alors on n'ajoute pas ce noeud
                             next_list = closed_list;
                             while(next_list)
@@ -247,18 +244,8 @@ int     make_path(unsigned short int map_param[10][9], int map_x, int map_y, int
                                 {
                                     add_to_open_list = 0;
                                 }
-//                                else if((next_list->data.x==successor->x)&&(next_list->data.y==successor->y)&&(next_list->data.f>successor->f))
-//                                {
-//                                    node_del = next_list->data;
-//                                    delete_a_nod = 1;
-//                                }
                                 next_list = next_list->next;
                             }
-//                            if(delete_a_nod)
-//                            {
-//                                closed_list = node_delete(closed_list, node_del);
-//                                delete_a_nod = 0;
-//                            }
                             //sinon on ajoute ce noeud a la liste des noeuds a analyser
                             if(add_to_open_list==1)
                             {
@@ -273,7 +260,7 @@ int     make_path(unsigned short int map_param[10][9], int map_x, int map_y, int
                             }
                             else
                             {
-                                //On remet a 1 notre indicateur
+                                //On remet a 1 notre indicateur et on supprime le noeud car il n'est pas interessant
                                 add_to_open_list=1;
                                 free(successor);
                             }
@@ -282,7 +269,7 @@ int     make_path(unsigned short int map_param[10][9], int map_x, int map_y, int
                 }
             }
         }
-        //On ajoute le noeud a la liste des noeuds choisis pour notre chemin
+        //On ajoute le noeud a la liste des noeuds que l'on a analyses
         if(closed_list==NULL)
         {
             closed_list = list_create(tmp);
