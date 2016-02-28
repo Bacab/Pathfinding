@@ -10,14 +10,6 @@
 #include <math.h>
 #include <string.h>
 
-#ifdef __linux__
-#define donotusecls 1
-#endif // linux
-
-#ifdef _WIN32
-#define donotusecls 0
-#endif // _WIN32
-
 #define MAXI(a,b) (((a)>(b))?(a):(b))
 
 typedef struct node node;

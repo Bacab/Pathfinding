@@ -95,21 +95,13 @@ void   delete_list(List *list_adress)
     {
         to_delete = next_one;
         next_one = next_one->next;
-        free(to_delete->data);
+        //free(to_delete->data);
         free(to_delete);
     }
 }
 
 void print_trajectory(unsigned short int map_param[10][9], int map_x, int map_y, int start_x, int start_y, int end_x, int end_y)
 {
-    if(donotusecls)
-    {
-        system("clear");
-    }
-    else
-    {
-        system("cls");
-    }
     for (int j = 0; j < map_y; j++)
     {
         for (int i = 0; i < map_x; i++)
