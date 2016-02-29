@@ -95,7 +95,7 @@ void   delete_list(List *list_adress)
     {
         to_delete = next_one;
         next_one = next_one->next;
-        //free(to_delete->data);
+        free(to_delete->data);
         free(to_delete);
     }
 }
@@ -141,7 +141,7 @@ void print_trajectory(unsigned short int map_param[10][9], int map_x, int map_y,
 
 int     make_path(unsigned short int map_param[10][9], int map_x, int map_y, int start_x, int start_y, int end_x, int end_y)
 {
-    node starting_node;//le noeud de depart, seul noeud avec f=g=h=0 et sans parent
+    node* starting_node = malloc(sizeof(node));//le noeud de depart, seul noeud avec f=g=h=0 et sans parent
     node* tmp;//le noeud a analyser
     node* successor;//un candidat pour le prochain noeud a analyser
 
@@ -153,15 +153,15 @@ int     make_path(unsigned short int map_param[10][9], int map_x, int map_y, int
     int step = 0;//le nombre de cases parcourues pour atteindre le but
 
     //On construit le noeud de départ
-    starting_node.x = start_x;
-    starting_node.y = start_y;
-    starting_node.parent = NULL;
-    starting_node.f = 0;
-    starting_node.g = 0;
-    starting_node.h = 0;
+    starting_node->x = start_x;
+    starting_node->y = start_y;
+    starting_node->parent = NULL;
+    starting_node->f = 0;
+    starting_node->g = 0;
+    starting_node->h = 0;
 
     //On construit les listes chainees qui representeront notre choix de parcours
-    List* open_list = list_create(&starting_node);//la liste des noeuds dont il faut analyser les alentours
+    List* open_list = list_create(starting_node);//la liste des noeuds dont il faut analyser les alentours
     List* closed_list = NULL;//la liste des noeuds deja analyses
     List* next_list = NULL;//permet de parcourir les listes chainees
 
@@ -210,6 +210,8 @@ int     make_path(unsigned short int map_param[10][9], int map_x, int map_y, int
                                     step+=1;
                                     next_node = next_node->parent;
                                 }
+                                free(tmp);
+                                free(successor);
                                 delete_list(closed_list);
                                 delete_list(open_list);
                                 return step;
