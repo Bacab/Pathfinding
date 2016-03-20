@@ -10,11 +10,10 @@
 
 typedef struct node node;
 
-struct node
-{
-	uint16_t heuristique;
-	uint16_t position : 15;
-	uint16_t visite : 1;
+struct node {
+	unsigned heuristique : 16;
+	unsigned position : 15;
+	unsigned visite : 1;
 };
 
 void    print_trajectory(unsigned char map_param[max_map_y][max_map_x], int start_x, int start_y, int end_x, int end_y);
