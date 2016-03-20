@@ -1,9 +1,9 @@
 #ifndef NAVIGATION_H_INCLUDED
 #define NAVIGATION_H_INCLUDED
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 #define max_map_x 60
 #define max_map_y 40
@@ -12,10 +12,10 @@ typedef struct node node;
 
 struct node
 {
-	unsigned short int position;
-	unsigned short int heuristique;
-	char visite;
- };
+	uint16_t heuristique;
+	uint16_t position : 15;
+	uint16_t visite : 1;
+};
 
 void    print_trajectory(unsigned char map_param[max_map_y][max_map_x], int start_x, int start_y, int end_x, int end_y);
 void    print_node_map(node node_map[max_map_y*max_map_x]);
