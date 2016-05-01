@@ -278,7 +278,14 @@ int walk_the_path(node node_map[max_map_y*max_map_x], float end_x, float end_y, 
         //on passe les coordonnees de la case ocupee a la fonction qui choisi le prochain but local
         next_case(node_map, robot_x, robot_y, &next_x, &next_y);
 
-		angle = atan2(next_y, next_x);
+		if(team==1)
+		{
+			angle = atan2(next_y, -next_x);
+		}
+		else
+		{
+			angle = atan2(next_y, next_x);
+		}
 
 		//voici la prochaine case but
         robot_x += next_x;
