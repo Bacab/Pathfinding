@@ -1,5 +1,20 @@
 #include "navigation.h"
 
+int get_dividende(int number, int diviseur)
+{
+	int dividende = 0;
+	if(diviseur==0)
+	{
+		return -1;
+	}
+	else
+	{
+		return (number-number%diviseur)/diviseur;
+	}
+}
+
+
+
 /*DEBUG ONLY
 Enregistre le chemin suivi par le robot*/
 void print_trajectory(unsigned char map_param[max_map_y][max_map_x], int start_x, int start_y, int end_x, int end_y)
@@ -58,32 +73,37 @@ void print_node_map(node node_map[max_map_y * max_map_x])
                 fprintf(my_file, "%d",node_map[i].heuristique);
             else
                 fprintf(my_file,"||");
-			if (i%max_map_x == 0)
+			if (i%max_map_x == max_map_x-1)
 			{
 				fprintf(my_file, "\n");
 			}
-        }  
+        }
     }
+	fclose(my_file);
 }
 
 /*Construit l'heuristique de chaque noeud de maniere a
 ce que, en se deplacant de case de moindre cout en case de moindre cout, peut
 importe la position de depart du robot, le chemin vers le but soit optimal*/
-void build_node_map(unsigned char map_param[max_map_y][max_map_x], node node_map[max_map_x*max_map_y], int end_x, int end_y)
+void    build_node_map(unsigned char map_param[max_map_y][max_map_x], node node_map[max_map_y*max_map_x], float end_x, float end_y, int team)
 {
     unsigned short int smallest_heur = 0xFFFF;
 	node * tmp;
 	int curr_x = 0;
     int curr_y = 0;
+	int rnd_end_x = 0;
+	int rnd_end_y = 0;
 	int i = 0;
+
+	//convertir les coordonnes du repere equipe vers le repere navigation
+	team_to_nav(end_x, end_y, &rnd_end_x, &rnd_end_y, team);
 
 	for (i = 0; i<max_map_y*max_map_x; i++)
     {
 		node_map[i].position = i;
 		curr_x = i%max_map_x;
 		curr_y = (i - i%max_map_x) / max_map_x;
-		//(float)sqrt((curr_y - end_y)*(curr_y - end_y) - (curr_x - end_x)*(curr_x - end_x));
-		if ((curr_x == end_x) && (curr_y == end_y))
+		if ((curr_x == rnd_end_x) && (curr_y == rnd_end_y))
 		{
 			node_map[i].heuristique = 0;
 			node_map[i].visite = 0;
@@ -115,7 +135,7 @@ void build_node_map(unsigned char map_param[max_map_y][max_map_x], node node_map
 			switch(i)
 			{
 				case 0:
-					if (tmp->position - 1 >= 0)
+					if ((tmp->position - 1 >= 0) && ((tmp->position) % max_map_x != 0))
 					{
 						if ((node_map[tmp->position - 1].visite == 0) && (node_map[tmp->position - 1].heuristique > (tmp->heuristique + 1)))
 						{
@@ -124,7 +144,7 @@ void build_node_map(unsigned char map_param[max_map_y][max_map_x], node node_map
 					}
 					break;
 				case 1:
-					if (tmp->position + 1 < max_map_y*max_map_x)
+					if ((tmp->position + 1 < max_map_y*max_map_x) && ((tmp->position) % max_map_x != max_map_x - 1))
 					{
 						if ((node_map[tmp->position + 1].visite == 0) && (node_map[tmp->position + 1].heuristique > (tmp->heuristique + 1)))
 						{
@@ -151,7 +171,7 @@ void build_node_map(unsigned char map_param[max_map_y][max_map_x], node node_map
 					}
 					break;
 				case 4:
-					if (tmp->position + max_map_x + 1 < max_map_y*max_map_x)
+					if ((tmp->position + max_map_x + 1 < max_map_y*max_map_x) && ((tmp->position) % max_map_x != max_map_x - 1))
 					{
 						if ((node_map[tmp->position + max_map_x + 1].visite == 0) && (node_map[tmp->position + max_map_x + 1].heuristique > (tmp->heuristique + 1)))
 						{
@@ -160,7 +180,7 @@ void build_node_map(unsigned char map_param[max_map_y][max_map_x], node node_map
 					}
 					break;
 				case 5:
-					if (tmp->position + max_map_x - 1 < max_map_y*max_map_x)
+					if ((tmp->position + max_map_x - 1 < max_map_y*max_map_x) && ((tmp->position) % max_map_x != 0))
 					{
 						if ((node_map[tmp->position + max_map_x - 1].visite == 0) && (node_map[tmp->position + max_map_x - 1].heuristique > (tmp->heuristique + 1)))
 						{
@@ -169,7 +189,7 @@ void build_node_map(unsigned char map_param[max_map_y][max_map_x], node node_map
 					}
 					break;
 				case 6:
-					if (tmp->position - max_map_x - 1 >= 0)
+					if ((tmp->position - max_map_x - 1 >= 0) && ((tmp->position) % max_map_x != 0))
 					{
 						if ((node_map[tmp->position - max_map_x - 1].visite == 0) && (node_map[tmp->position - max_map_x - 1].heuristique > (tmp->heuristique + 1)))
 						{
@@ -178,7 +198,7 @@ void build_node_map(unsigned char map_param[max_map_y][max_map_x], node node_map
 					}
 					break;
 				case 7:
-					if (tmp->position - max_map_x + 1 >= 0)
+					if ((tmp->position - max_map_x + 1 >= 0) && ((tmp->position) % max_map_x != max_map_x - 1))
 					{
 						if ((node_map[tmp->position - max_map_x + 1].visite == 0) && (node_map[tmp->position - max_map_x + 1].heuristique > (tmp->heuristique + 1)))
 						{
@@ -193,7 +213,7 @@ void build_node_map(unsigned char map_param[max_map_y][max_map_x], node node_map
 }
 
 /*Choisi la case adjacente de moindre coût*/
-void next_case(node node_map[max_map_y * max_map_x],int pos_x, int pos_y, int* delta_x, int* delta_y)
+void next_case(node node_map[max_map_y * max_map_x], int pos_x, int pos_y, int* delta_x, int* delta_y)
 {
 	unsigned short int smallest_heur = 0xFFFF;
     int tmp_x = 0;
@@ -227,23 +247,80 @@ void next_case(node node_map[max_map_y * max_map_x],int pos_x, int pos_y, int* d
     *delta_y = lesser_cost_y;
 }
 
-/*Parcours le chemin en fonction des heuristiques et retounr le nombre d'etape avant d'arriver au but, modifie la carte !*/
-int walk_the_path(unsigned char map_param[max_map_y][max_map_x], node node_map[max_map_y*max_map_x], int start_x, int start_y, int end_x, int end_y)
+/*Parcours le chemin en fonction des heuristiques et retourne le nombre d'etape avant d'arriver au but*/
+int walk_the_path(node node_map[max_map_y*max_map_x], float end_x, float end_y, int team)
 {
-    int robot_x = start_x;
-    int robot_y = start_y;
+    int robot_x = 0;
+    int robot_y = 0;
+	int rnd_end_x = (int)end_x;
+	int rnd_end_y = (int)end_y;
     int next_x = 0;
     int next_y = 0;
     int nb_iter = 0;
+	float pos_robot_x = 0.0;
+	float pos_robot_y = 0.0;
+	float angle = 0.0;
 
-    while ((robot_x != end_x) || (robot_y != end_y))
+	// transformer but x et but y dans le repere de la navigation
+	team_to_nav(end_x, end_y, &rnd_end_x, &rnd_end_y, team);
+
+	while ((robot_x != rnd_end_x) || (robot_y != rnd_end_y))
     {
-        next_case(node_map, robot_x, robot_y, &next_x, &next_y);
-        map_param[robot_y][robot_x]=180;
+        //recuperer la position absolue du robot
+		/*DEBUG*/
+		pos_robot_x = (float)robot_x*5.0 + 2.5;
+		pos_robot_y = (float)robot_y*5.0 + 2.5;
+		/*DEBUG*/
 
+        //transformer ces coordonnees en case occupee
+		team_to_nav(pos_robot_x, pos_robot_y, &robot_x, &robot_y, team);
+
+        //on passe les coordonnees de la case ocupee a la fonction qui choisi le prochain but local
+        next_case(node_map, robot_x, robot_y, &next_x, &next_y);
+
+		angle = atan2(next_y, next_x);
+
+		//voici la prochaine case but
         robot_x += next_x;
         robot_y += next_y;
+
+		nav_to_team(robot_x, robot_y, &pos_robot_x, &pos_robot_y, team);
+		
+		//envoyer le prochain but
+		printf("Go to X = %f | Y = %f | Rotate by %f\n", pos_robot_x, pos_robot_y, angle);
+
         nb_iter+=1;
     }
+    //envoyer la derniere instruction pour aller precisement au but
+	printf("Go to X = %f | Y = %f \n", end_x, end_y);
+
     return nb_iter;
+}
+
+void	team_to_nav(float abs_team_x, float abs_team_y, int *nav_x, int *nav_y, int team)
+{
+	if (team == 1)
+	{
+		*nav_x = 60 - (int)(abs_team_x / 5.0);
+		*nav_y = (int)(abs_team_y / 5.0);
+	}
+	else
+	{
+		*nav_x = (int)(abs_team_x / 5.0);
+		*nav_y = (int)(abs_team_y / 5.0);
+	}
+}
+
+void	nav_to_team(int nav_x, int nav_y, float *abs_team_x, float *abs_team_y, int team)
+{
+	if (team == 1)
+	{
+		*abs_team_x = 300.0 - (float)nav_x * 5.0 + 2.5;
+		*abs_team_y = (float)nav_y * 5.0 + 2.5;
+	}
+	else
+	{
+		*abs_team_x = (float)nav_x * 5.0 + 2.5;
+		*abs_team_y = (float)nav_y * 5.0 + 2.5;
+	}
 }
